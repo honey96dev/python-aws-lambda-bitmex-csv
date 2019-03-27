@@ -1,28 +1,48 @@
 # importing the requests library
 import requests
-
-# api-endpoint
-URL = "http://maps.googleapis.com/maps/api/geocode/json"
-
-# location given here
-location = "delhi technological university"
-
-# defining a params dict for the parameters to be sent to the API
-PARAMS = {'address':location}
-
-# sending get request and saving the response as response object
-r = requests.get(url = URL, params = PARAMS)
-
-# extracting data in json format
-data = r.json()
+import json
+import csv
 
 
-# extracting latitude, longitude and formatted address
-# of the first matching location
-latitude = data['results'][0]['geometry']['location']['lat']
-longitude = data['results'][0]['geometry']['location']['lng']
-formatted_address = data['results'][0]['formatted_address']
+def get_data():
+    url = "https://www.bitmex.com/api/v1/trade/bucketed"
 
-# printing the output
-print("Latitude:%s\nLongitude:%s\nFormatted Address:%s"
-	%(latitude, longitude,formatted_address))
+    # defining a params dict for the parameters to be sent to the API
+    params = {
+        'binSize': '5m',
+        'partial': 'false',
+        'symbol': 'XBTUSD',
+        'count': 500,
+        'reverse': 'false',
+        'startTime': '2014-08-25T00:00:00.000Z',
+    }
+
+    # sending get request and saving the response as response object
+    r = requests.get(url=url, params=params)
+
+    formatted_string = r.text.replace("'", '"')
+    rows = json.loads(formatted_string)
+    r_cnt = len(rows)
+    if r_cnt == 0:
+        return
+
+    csv_arr = []
+    for r in range(0, r_cnt):
+        row = rows[r]
+        arr = []
+        for key, val in row.items():
+            arr.append(val)
+        csv_arr.append(arr)
+
+    print(csv_arr)
+    with open('./result.csv', 'w', newline='') as writeFile:
+        writer = csv.writer(writeFile)
+        writer.writerows(csv_arr)
+
+    writeFile.close()
+
+
+get_data()
+#
+# a = [
+#      ]
