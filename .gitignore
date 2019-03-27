@@ -95,8 +95,9 @@ ENV/
 env.bak/
 venv.bak/
 .idea/
-result.csv
 req/
+result.csv
+test.csv
 
 # Spyder project settings
 .spyderproject
