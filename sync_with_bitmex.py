@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 
 import datetime
-import time
+import threading
+import sched, time
 
 
 def date_parser(x):
@@ -25,14 +26,19 @@ def float_parser(x):
 def lambda_handler(event, context, interval):
     connection = pymysql.connect(host='127.0.0.1',
                                  user='root',
-                                 password='',
-                                 # password='skdmlMysql@123456',
+                                #  password='',
+                                 password='skdmlMysql@123456',
                                  db='aws_lambda_bitmex',
                                  charset='utf8',
                                  cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with connection.cursor() as cursor:
+            # Create a new record
+            sql = "CREATE TABLE IF NOT EXISTS `downloaded_" + interval + "`(`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `date` varchar(255) DEFAULT NULL, `timestamp` varchar(255) DEFAULT NULL, `open` double DEFAULT NULL, `high` double DEFAULT NULL, `low` double DEFAULT NULL, `close` double DEFAULT NULL, `volume` double DEFAULT NULL, `num_3` double DEFAULT NULL, `num_3i` double DEFAULT NULL, `num_6` double DEFAULT NULL, `num_6i` double DEFAULT NULL, `num_9` double DEFAULT NULL, `num_9i` double DEFAULT NULL, `num_100` double DEFAULT NULL, `num_100i` double DEFAULT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+            cursor.execute(sql, None)
+
+            connection.commit()
 
             sql = "SELECT `timestamp` FROM `downloaded_" + interval + "` ORDER BY `timestamp` DESC LIMIT 0, 1;"
             cursor.execute(sql, None)
@@ -66,8 +72,16 @@ def lambda_handler(event, context, interval):
     # sending get request and saving the response as response object
     r = requests.get(url=url, params=params)
 
-    formatted_string = r.text.replace("'", '"')
-    rows = json.loads(formatted_string)
+    try:
+        formatted_string = r.text.replace("'", '"')
+        rows = json.loads(formatted_string)
+    except:
+        return {
+            'statusCode': 200,
+            'body': 'ok',
+            'formatted_string': formatted_string
+        }
+
     r_cnt = len(rows)
     if r_cnt == 0:
         return {
@@ -77,11 +91,6 @@ def lambda_handler(event, context, interval):
 
     try:
         with connection.cursor() as cursor:
-            # Create a new record
-            sql = "CREATE TABLE IF NOT EXISTS `downloaded_" + interval + "`(`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `date` varchar(255) DEFAULT NULL, `timestamp` varchar(255) DEFAULT NULL, `open` double DEFAULT NULL, `high` double DEFAULT NULL, `low` double DEFAULT NULL, `close` double DEFAULT NULL, `volume` double DEFAULT NULL, `num_3` double DEFAULT NULL, `num_3i` double DEFAULT NULL, `num_6` double DEFAULT NULL, `num_6i` double DEFAULT NULL, `num_9` double DEFAULT NULL, `num_9i` double DEFAULT NULL, `num_100` double DEFAULT NULL, `num_100i` double DEFAULT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
-            cursor.execute(sql, None)
-
-            connection.commit()
             # Create a new record
             for r in range(0, r_cnt):
                 sql = "INSERT INTO `downloaded_" + interval + "`(`date`, `timestamp`, `open`, `high`, `low`, `close`, `volume`) " + \
@@ -173,11 +182,27 @@ def lambda_handler(event, context, interval):
     }
 
 
-def update():
-    print(lambda_handler(None, None, '5m'))
-    print(lambda_handler(None, None, '1h'))
+# def update():
+#     print(lambda_handler(None, None, '1m'))
+#     print(lambda_handler(None, None, '5m'))
+#     print(lambda_handler(None, None, '1h'))
 
 
-while True:
-    update()
-    time.sleep(10)
+s = sched.scheduler(time.time, time.sleep)
+def do_something(sc): 
+    print("Doing sync...")
+    print(str(datetime.datetime.now()))
+    try:
+        print(lambda_handler(None, None, '1m'))
+        print(lambda_handler(None, None, '5m'))
+        print(lambda_handler(None, None, '1h'))
+    except:
+        time.sleep(5 * 60)
+    # do your stuff
+    s.enter(60, 1, do_something, (sc,))
+
+s.enter(60, 1, do_something, (s,))
+s.run()
+# while True:
+#     update()
+#     time.sleep(10)
