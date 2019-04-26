@@ -2,8 +2,8 @@ import json
 
 import requests
 
-from . import global_constant
-from . import my_functions
+import global_constant
+import my_functions
 
 
 def order_create(order_link_id=None, order_type=None, price=None, qty=None, side=None, symbol=None, time_in_force=None):
@@ -33,11 +33,13 @@ def order_create(order_link_id=None, order_type=None, price=None, qty=None, side
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def order_list(order_id=None, order_link_id=None, symbol=None, sort=None, order=None, page=None, limit=None,
@@ -69,11 +71,13 @@ def order_list(order_id=None, order_link_id=None, symbol=None, sort=None, order=
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def order_cancel(order_id=None):
@@ -97,11 +101,13 @@ def order_cancel(order_id=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def stop_order_create(base_price=None, order_link_id=None, order_type=None, price=None, qty=None, side=None,
@@ -134,11 +140,13 @@ def stop_order_create(base_price=None, order_link_id=None, order_type=None, pric
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def stop_order_list(limit=None, order=None, order_link_id=None, page=None, sort=None, stop_order_id=None, symbol=None):
@@ -168,11 +176,13 @@ def stop_order_list(limit=None, order=None, order_link_id=None, page=None, sort=
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def stop_order_cancel(stop_order_id=None):
@@ -196,11 +206,13 @@ def stop_order_cancel(stop_order_id=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def user_leverage():
@@ -223,11 +235,13 @@ def user_leverage():
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def user_leverage_save(leverage=None, symbol=None):
@@ -252,11 +266,13 @@ def user_leverage_save(leverage=None, symbol=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def position_list():
@@ -279,11 +295,13 @@ def position_list():
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def position_change(margin=None, symbol=None):
@@ -308,11 +326,13 @@ def position_change(margin=None, symbol=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def last_funding_rate(symbol=None):
@@ -336,11 +356,13 @@ def last_funding_rate(symbol=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def last_funding_fee(symbol=None):
@@ -364,11 +386,13 @@ def last_funding_fee(symbol=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def predicted_funding_rate_fee(symbol=None):
@@ -392,11 +416,13 @@ def predicted_funding_rate_fee(symbol=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )
 
 
 def trade_records(order_id=None):
@@ -420,8 +446,10 @@ def trade_records(order_id=None):
         formatted_string = r.text.replace("'", '"')
         rows = json.loads(formatted_string)
 
-        return json.dumps(rows)
+        return rows
+        # return json.dumps(rows)
     except:
-        return json.dumps(
-            {'ret_msg': 'error'}
-        )
+        return {'ret_msg': 'error'}
+        # return json.dumps(
+        #     {'ret_msg': 'error'}
+        # )

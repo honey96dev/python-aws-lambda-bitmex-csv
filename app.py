@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pymysql.cursors
 import pymysql.cursors
+import requests
 from flask import Flask, abort, request
 
 import mysql_config
@@ -314,9 +315,10 @@ def id0_collection(interval):
 
 # =======================================================
 
-@app.route('/bs_with_bybit/<interval>')
+@app.route('/bs_with_bybit', methods=['POST'])
 def bs_with_bybit():
-    try:
+    # try:
+        result_cancel = ''
         connection = pymysql.connect(host=mysql_config.host,
                                      user=mysql_config.user,
                                      #  password='',
@@ -333,12 +335,65 @@ def bs_with_bybit():
                 last_order_id = rows[0]['order_id']
             if last_order_id is not None:
                 order_list = bybit_api.order_list(last_order_id)
+                order_data = order_list['result']['data']
+                # return json.dumps(order_data)
+                if len(order_data) > 0:
+                    result_cancel = bybit_api.order_cancel(order_data[0]['order_id'])
+                # return json.dumps(order_data)
 
-    except:
-        connection.close()
-        abort(401)
+            position_list = bybit_api.position_list()
+            print('position_list', position_list)
+            positions = position_list['result']
+            print('positions', positions)
+            position_btcusd = None
+            for p in positions:
+                if p['symbol'] == 'BTCUSD':
+                    position_btcusd = p
+                    # break
 
-    return json.dumps()
+            print('position_btcusd', position_btcusd)
+            if position_btcusd is not None:
+                url = "http://127.0.0.1/id0/5m"
+
+                r = requests.get(url=url)
+
+                formatted_string = r.text.replace("'", '"')
+                id0 = json.loads(formatted_string)
+                print('id0', id0)
+                price = int(1.1 * id0['num_100'])
+                print('price', price)
+                if position_btcusd['size'] > 0:
+                    result_btcusd = bybit_api.order_create(order_type='Limit', symbol='BTCUSD', side='Sell',
+                                                           qty=position_btcusd['size'], price=price,
+                                                           time_in_force='GoodTillCancel')
+                                                           # qty=1, price=price, time_in_force='GoodTillCancel')
+                    if result_btcusd['ret_code'] == 0:
+                        result1 = result_btcusd['result']
+                        sql = "INSERT INTO `last_order_id`(`order_id`, `side`, `state`, `size`, `price`, `timestamp`) " +\
+                              "VALUES('{}', '{}', '{}', '{}', '{}', '{}');" \
+                                  .format(result1['order_id'], 'Sell', result1['order_status'],
+                                          position_btcusd['size'], price, result_btcusd['time_now'])
+                        cursor.execute(sql, None)
+                        connection.commit()
+                else:
+                    result_btcusd = bybit_api.order_create(order_type='Limit', symbol='BTCUSD', side='Buy',
+                                                           qty=1, price=price, time_in_force='GoodTillCancel')
+                    if result_btcusd['ret_code'] == 0:
+                        result1 = result_btcusd['result']
+                        sql = "INSERT INTO `last_order_id`(`order_id`, `side`, `state`, `size`, `price`, `timestamp`) " + \
+                              "VALUES('{}', '{}', '{}', '{}', '{}', '{}');" \
+                                  .format(result1['order_id'], 'Buy', result1['order_status'],
+                                          position_btcusd['size'], price, result_btcusd['time_now'])
+                        cursor.execute(sql, None)
+                        connection.commit()
+                response = {
+                    'old': order_data,
+                    'new': result_btcusd}
+    # except:
+    #     connection.close()
+    #     abort(401)
+
+        return json.dumps(response)
 
 
 if __name__ == '__main__':

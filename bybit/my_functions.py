@@ -10,7 +10,7 @@ import time
 
 import requests
 
-from . import global_constant
+import global_constant
 
 
 def eprint(*args, **kwargs):
