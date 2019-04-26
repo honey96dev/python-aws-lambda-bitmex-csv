@@ -317,7 +317,14 @@ def id0_collection(interval):
 
 @app.route('/bs_with_bybit', methods=['POST'])
 def bs_with_bybit():
-    # try:
+    remote_addr = request.remote_addr
+    print('ip', remote_addr)
+    if remote_addr != '127.0.0.1':
+        return json.dumps({
+            'result': 'bad',
+            'error': 'ip invalid',
+        })
+    try:
         result_cancel = ''
         connection = pymysql.connect(host=mysql_config.host,
                                      user=mysql_config.user,
@@ -386,14 +393,15 @@ def bs_with_bybit():
                                           position_btcusd['size'], price, result_btcusd['time_now'])
                         cursor.execute(sql, None)
                         connection.commit()
-                response = {
-                    'old': order_data,
-                    'new': result_btcusd}
-    # except:
-    #     connection.close()
-    #     abort(401)
+    except:
+        connection.close()
+        abort(401)
 
-        return json.dumps(response)
+    response = {
+        'result': 'ok',
+        'old': order_data,
+        'new': result_btcusd}
+    return json.dumps(response)
 
 
 if __name__ == '__main__':

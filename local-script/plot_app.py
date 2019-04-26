@@ -2,11 +2,12 @@ import json
 
 import matplotlib.pyplot as plt
 import requests
+import server_config
 
 
 def draw_plot(interval):
     try:
-        url = "http://127.0.0.1/id0_collection/{}".format(interval)
+        url = "{}/id0_collection/{}".format(server_config.server_url, interval)
 
         r = requests.get(url=url)
 
