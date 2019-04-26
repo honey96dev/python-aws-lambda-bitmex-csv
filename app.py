@@ -323,6 +323,7 @@ def bs_with_bybit():
         return json.dumps({
             'result': 'bad',
             'error': 'ip invalid',
+            'ip': remote_addr,
         })
     try:
         result_cancel = ''
