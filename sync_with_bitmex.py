@@ -1,12 +1,12 @@
-import requests
+import datetime
 import json
-import pymysql.cursors
+import sched
+import time
+
 import numpy as np
 import pandas as pd
-
-import datetime
-import threading
-import sched, time
+import pymysql.cursors
+import requests
 
 
 def date_parser(x):
@@ -24,10 +24,16 @@ def float_parser(x):
 
 
 def lambda_handler(event, context, interval):
+    # connection = pymysql.connect(host='108.61.186.24',
+    #                              user='bitmex3536',
+    #                              #  password='',
+    #                              password='BitMex*95645636',
+    #                              db='aws_lambda_bitmex',
+    #                              charset='utf8',
+    #                              cursorclass=pymysql.cursors.DictCursor)
     connection = pymysql.connect(host='127.0.0.1',
                                  user='root',
-                                #  password='',
-                                 password='skdmlMysql@123456',
+                                 password='',
                                  db='aws_lambda_bitmex',
                                  charset='utf8',
                                  cursorclass=pymysql.cursors.DictCursor)
@@ -50,7 +56,7 @@ def lambda_handler(event, context, interval):
             else:
                 timestamp = '2019-01-01T00:00:00.000Z'
     except:
-        print(connection.cursor()._last_executed)
+        # print(connection.cursor()._last_executed)
         connection.close()
         return {
             'statusCode': 500
@@ -63,7 +69,7 @@ def lambda_handler(event, context, interval):
     params = {
         'binSize': interval,
         'partial': 'false',
-        'symbol': 'XBTUSD',
+        'symbol': 'XBTUSD',  ####### ETHUSD will calculate Eth
         'count': 750,
         'reverse': 'false',
         'startTime': timestamp,
@@ -82,6 +88,7 @@ def lambda_handler(event, context, interval):
             'formatted_string': formatted_string
         }
 
+    print(url, rows)
     r_cnt = len(rows)
     if r_cnt == 0:
         return {
@@ -189,7 +196,9 @@ def lambda_handler(event, context, interval):
 
 
 s = sched.scheduler(time.time, time.sleep)
-def do_something(sc): 
+
+
+def do_something(sc):
     print("Doing sync...")
     print(str(datetime.datetime.now()))
     try:
@@ -201,7 +210,8 @@ def do_something(sc):
     # do your stuff
     s.enter(60, 1, do_something, (sc,))
 
-s.enter(60, 1, do_something, (s,))
+
+s.enter(0, 1, do_something, (s,))
 s.run()
 # while True:
 #     update()

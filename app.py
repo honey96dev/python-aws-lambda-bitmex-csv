@@ -1,23 +1,36 @@
-from flask import Flask, abort
+import datetime
 import json
-import pymysql.cursors
+import sched
+import time
+from datetime import timedelta
+from threading import Thread
+
 import numpy as np
 import pandas as pd
 import pymysql.cursors
-from datetime import timedelta  
-import datetime
+import pymysql.cursors
+import requests
+from flask import Flask, abort
 
 app = Flask(__name__)
+
 
 def date_parser(x):
     return datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.000Z')
 
+
 @app.route('/get_custom_bitmex/<interval>')
 def get_custom_bitmex(interval):
+    # connection = pymysql.connect(host='108.61.186.24',
+    #                              user='bitmex3536',
+    #                              #  password='',
+    #                              password='BitMex*95645636',
+    #                              db='aws_lambda_bitmex',
+    #                              charset='utf8',
+    #                              cursorclass=pymysql.cursors.DictCursor)
     connection = pymysql.connect(host='127.0.0.1',
                                  user='root',
-                                #  password='',
-                                 password='skdmlMysql@123456',
+                                 password='',
                                  db='aws_lambda_bitmex',
                                  charset='utf8',
                                  cursorclass=pymysql.cursors.DictCursor)
@@ -25,7 +38,7 @@ def get_custom_bitmex(interval):
     try:
         with connection.cursor() as cursor:
 
-            sql = "SELECT `id`, `timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, " +\
+            sql = "SELECT `id`, `timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, " + \
                   "`num_6`, `num_6i`, `num_9`, `num_9i`, `num_100`, `num_100i`, `date` FROM (SELECT D.* FROM `downloaded_" + interval + "` D ORDER BY D.timestamp DESC LIMIT 0, 2000) `sub` ORDER BY `timestamp` ASC;"
             cursor.execute(sql)
             rows1 = cursor.fetchall()
@@ -41,7 +54,7 @@ def get_custom_bitmex(interval):
     for r in rows1:
         date_arr.append(r['date'])
         open_arr.append(r['open'])
-    
+
     for r in range(0, 60):
         date_arr.append(rows1[result_cnt]['date'])
         open_arr.append(rows1[result_cnt]['open'])
@@ -91,7 +104,7 @@ def get_custom_bitmex(interval):
         rows[idx]['num_100'] = num_100[idx].real
         rows[idx]['num_100i'] = num_100[idx].imag
         idx = idx + 1
-    
+
     last_timestamp = date_parser(rows[cnt]['timestamp'])
     # print(last_timestamp)
     for i in range(0, 60):
@@ -133,14 +146,20 @@ def get_custom_bitmex(interval):
     return json.dumps(result)
 
 
-#=======================================================
+# =======================================================
 
 @app.route('/id0/<interval>')
 def id0(interval):
+    # connection = pymysql.connect(host='108.61.186.24',
+    #                              user='bitmex3536',
+    #                              #  password='',
+    #                              password='BitMex*95645636',
+    #                              db='aws_lambda_bitmex',
+    #                              charset='utf8',
+    #                              cursorclass=pymysql.cursors.DictCursor)
     connection = pymysql.connect(host='127.0.0.1',
                                  user='root',
-                                #  password='',
-                                 password='skdmlMysql@123456',
+                                 password='',
                                  db='aws_lambda_bitmex',
                                  charset='utf8',
                                  cursorclass=pymysql.cursors.DictCursor)
@@ -148,7 +167,7 @@ def id0(interval):
     try:
         with connection.cursor() as cursor:
 
-            sql = "SELECT `id`, `timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, " +\
+            sql = "SELECT `id`, `timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, " + \
                   "`num_6`, `num_6i`, `num_9`, `num_9i`, `num_100`, `num_100i`, `date` FROM (SELECT D.* FROM `downloaded_" + interval + "` D ORDER BY D.timestamp DESC LIMIT 0, 2000) `sub` ORDER BY `timestamp` ASC;"
             cursor.execute(sql)
             rows1 = cursor.fetchall()
@@ -164,7 +183,7 @@ def id0(interval):
     for r in rows1:
         date_arr.append(r['date'])
         open_arr.append(r['open'])
-    
+
     for r in range(0, 60):
         date_arr.append(rows1[result_cnt]['date'])
         open_arr.append(rows1[result_cnt]['open'])
@@ -199,16 +218,14 @@ def id0(interval):
 
         idx += 1
 
-    
-
     result = {
-        "id": 0, 
-        "timestamp": rows1[result_cnt]['timestamp'], 
-        "open": rows1[result_cnt]['open'], 
-        "high": rows1[result_cnt]['high'], 
-        "low": rows1[result_cnt]['low'], 
-        "close": rows1[result_cnt]['close'], 
-        "volume": rows1[result_cnt]['volume'], 
+        "id": 0,
+        "timestamp": rows1[result_cnt]['timestamp'],
+        "open": rows1[result_cnt]['open'],
+        "high": rows1[result_cnt]['high'],
+        "low": rows1[result_cnt]['low'],
+        "close": rows1[result_cnt]['close'],
+        "volume": rows1[result_cnt]['volume'],
         'num_3': num_3[result_cnt].real,
         'num_3i': num_3[result_cnt].imag,
         'num_6': num_6[result_cnt].real,
@@ -217,7 +234,7 @@ def id0(interval):
         'num_9i': num_9[result_cnt].imag,
         'num_100': num_100[result_cnt].real,
         'num_100i': num_100[result_cnt].imag,
-        "date": rows1[result_cnt]['date'], 
+        "date": rows1[result_cnt]['date'],
     }
     # result["result"] = rows
     # for row in rows:
@@ -228,5 +245,6 @@ def id0(interval):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=443, ssl_context='adhoc')
-    # app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=80)
+    # app.run(host='0.0.0.0', port=443, ssl_context='adhoc')
+
