@@ -9,19 +9,19 @@ import requests
 
 def save_id0_to_db(interval):
     try:
-        # connection = pymysql.connect(host='108.61.186.24',
-        #                              user='bitmex3536',
-        #                              #  password='',
-        #                              password='BitMex*95645636',
-        #                              db='aws_lambda_bitmex',
-        #                              charset='utf8',
-        #                              cursorclass=pymysql.cursors.DictCursor)
-        connection = pymysql.connect(host='127.0.0.1',
-                                     user='root',
-                                     password='',
+        connection = pymysql.connect(host='108.61.186.24',
+                                     user='bitmex3536',
+                                     #  password='',
+                                     password='BitMex*95645636',
                                      db='aws_lambda_bitmex',
                                      charset='utf8',
                                      cursorclass=pymysql.cursors.DictCursor)
+        # connection = pymysql.connect(host='127.0.0.1',
+        #                              user='root',
+        #                              password='',
+        #                              db='aws_lambda_bitmex',
+        #                              charset='utf8',
+        #                              cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
             # Create a new record
             sql = "CREATE TABLE IF NOT EXISTS `id0_{}` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,  `timestamp` varchar(765) DEFAULT NULL,  `open` double DEFAULT 0,  `high` double DEFAULT 0,  `low` double DEFAULT 0,  `close` double DEFAULT 0,  `volume` double DEFAULT 0,  `num_3` double DEFAULT 0,  `num_3i` double DEFAULT 0,  `num_6` double DEFAULT 0,  `num_6i` double DEFAULT 0,  `num_9` double DEFAULT 0,  `num_9i` double DEFAULT 0,  `num_100` double DEFAULT 0,  `num_100i` double DEFAULT 0,  PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;".format(

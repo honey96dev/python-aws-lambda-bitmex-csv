@@ -1,16 +1,13 @@
 import datetime
 import json
-import sched
-import time
 from datetime import timedelta
-from threading import Thread
 
 import numpy as np
 import pandas as pd
 import pymysql.cursors
 import pymysql.cursors
-import requests
-from flask import Flask, abort
+from flask import Flask, abort, request
+from bybit import bybit_api
 
 app = Flask(__name__)
 
@@ -21,19 +18,19 @@ def date_parser(x):
 
 @app.route('/get_custom_bitmex/<interval>')
 def get_custom_bitmex(interval):
-    # connection = pymysql.connect(host='108.61.186.24',
-    #                              user='bitmex3536',
-    #                              #  password='',
-    #                              password='BitMex*95645636',
-    #                              db='aws_lambda_bitmex',
-    #                              charset='utf8',
-    #                              cursorclass=pymysql.cursors.DictCursor)
-    connection = pymysql.connect(host='127.0.0.1',
-                                 user='root',
-                                 password='',
+    connection = pymysql.connect(host='108.61.186.24',
+                                 user='bitmex3536',
+                                 #  password='',
+                                 password='BitMex*95645636',
                                  db='aws_lambda_bitmex',
                                  charset='utf8',
                                  cursorclass=pymysql.cursors.DictCursor)
+    # connection = pymysql.connect(host='127.0.0.1',
+    #                              user='root',
+    #                              password='',
+    #                              db='aws_lambda_bitmex',
+    #                              charset='utf8',
+    #                              cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with connection.cursor() as cursor:
@@ -150,19 +147,19 @@ def get_custom_bitmex(interval):
 
 @app.route('/id0/<interval>')
 def id0(interval):
-    # connection = pymysql.connect(host='108.61.186.24',
-    #                              user='bitmex3536',
-    #                              #  password='',
-    #                              password='BitMex*95645636',
-    #                              db='aws_lambda_bitmex',
-    #                              charset='utf8',
-    #                              cursorclass=pymysql.cursors.DictCursor)
-    connection = pymysql.connect(host='127.0.0.1',
-                                 user='root',
-                                 password='',
+    connection = pymysql.connect(host='108.61.186.24',
+                                 user='bitmex3536',
+                                 #  password='',
+                                 password='BitMex*95645636',
                                  db='aws_lambda_bitmex',
                                  charset='utf8',
                                  cursorclass=pymysql.cursors.DictCursor)
+    # connection = pymysql.connect(host='127.0.0.1',
+    #                              user='root',
+    #                              password='',
+    #                              db='aws_lambda_bitmex',
+    #                              charset='utf8',
+    #                              cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with connection.cursor() as cursor:
@@ -172,7 +169,7 @@ def id0(interval):
             cursor.execute(sql)
             rows1 = cursor.fetchall()
     except:
-        print(connection.cursor()._last_executed)
+        # print(connection.cursor()._last_executed)
         connection.close()
         abort(401)
 
@@ -242,6 +239,122 @@ def id0(interval):
 
     # response = "{" + ", ".join(result) + "}"
     return json.dumps(result)
+
+
+# =======================================================
+
+@app.route('/id0_collection/<interval>')
+def id0_collection(interval):
+    params = request.args
+    mode = params.get('mode')
+    try:
+        connection = pymysql.connect(host='108.61.186.24',
+                                     user='bitmex3536',
+                                     #  password='',
+                                     password='BitMex*95645636',
+                                     db='aws_lambda_bitmex',
+                                     charset='utf8',
+                                     cursorclass=pymysql.cursors.DictCursor)
+        # connection = pymysql.connect(host='127.0.0.1',
+        #                              user='root',
+        #                              password='',
+        #                              db='aws_lambda_bitmex',
+        #                              charset='utf8',
+        #                              cursorclass=pymysql.cursors.DictCursor)
+
+        with connection.cursor() as cursor:
+            if mode == 'all':
+                sql = "SELECT `timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, " +\
+                      "`num_6`, `num_6i`, `num_9`, `num_9i`, `num_100`, `num_100i` FROM `id0_{}` ORDER BY `timestamp` " +\
+                      "ASC;"
+            else:
+                sql = "SELECT I.* FROM (SELECT `timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, " +\
+                      "`num_6`, `num_6i`, `num_9`, `num_9i`, `num_100`, `num_100i` FROM `id0_{}` ORDER BY `timestamp` " +\
+                      "DESC LIMIT 0, 2000) `I` ORDER BY I.timestamp ASC;"
+            sql = sql.format(interval)
+            print(sql)
+            cursor.execute(sql)
+            rows1 = cursor.fetchall()
+    except:
+        connection.close()
+        abort(401)
+
+    rows = []
+    cnt = len(rows1) - 1
+    idx = 0
+    for row in rows1:
+        rows.append(row)
+        rows[idx]['id'] = cnt - idx
+        idx = idx + 1
+
+    # last_timestamp = date_parser(rows[cnt]['timestamp'])
+    # # print(last_timestamp)
+    # for i in range(0, 60):
+    #     if interval == "1m":
+    #         last_timestamp = last_timestamp + timedelta(minutes=1)
+    #     elif interval == "5m":
+    #         last_timestamp = last_timestamp + timedelta(minutes=5)
+    #     elif interval == "1h":
+    #         last_timestamp = last_timestamp + timedelta(hours=1)
+    #
+    #     row1 = {
+    #         'id': cnt - idx,
+    #         'timestamp': last_timestamp.strftime('%Y-%m-%dT%H:%M:%S.000Z'),
+    #         'open': rows[cnt]['open'],
+    #         'high': rows[cnt]['high'],
+    #         'low': rows[cnt]['low'],
+    #         'close': rows[cnt]['close'],
+    #         'volume': rows[cnt]['volume'],
+    #         'num_3': rows[cnt]['num_3'],
+    #         'num_3i': rows[cnt]['num_3i'],
+    #         'num_6': rows[cnt]['num_6'],
+    #         'num_6i': rows[cnt]['num_6i'],
+    #         'num_9': rows[cnt]['num_9'],
+    #         'num_9i': rows[cnt]['num_9i'],
+    #         'num_100': rows[cnt]['num_100'],
+    #         'num_100i': rows[cnt]['num_100i'],
+    #     }
+    #     rows.append(row1)
+    #     idx = idx + 1
+
+    result = {
+        "result": rows
+    }
+    # result["result"] = rows
+    # for row in rows:
+    #     result.append(json.dumps(row))
+
+    # response = "{" + ", ".join(result) + "}"
+    return json.dumps(result)
+
+
+# =======================================================
+
+@app.route('/bs_with_bybit/<interval>')
+def bs_with_bybit():
+    try:
+        connection = pymysql.connect(host='108.61.186.24',
+                                     user='bitmex3536',
+                                     #  password='',
+                                     password='BitMex*95645636',
+                                     db='aws_lambda_bitmex',
+                                     charset='utf8',
+                                     cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM last_order_id O ORDER BY O.timestamp DESC LIMIT 0, 1;"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            last_order_id = None
+            if len(rows) > 0:
+                last_order_id = rows[0]['order_id']
+            if last_order_id is not None:
+                order_list = bybit_api.order_list(last_order_id)
+
+    except:
+        connection.close()
+        abort(401)
+
+    return json.dumps()
 
 
 if __name__ == '__main__':
