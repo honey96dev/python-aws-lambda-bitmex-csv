@@ -8,6 +8,8 @@ import pandas as pd
 import pymysql.cursors
 import requests
 
+import mysql_config
+
 
 def date_parser(x):
     return datetime.datetime.strptime(x, '%Y-%m-%d')
@@ -24,19 +26,13 @@ def float_parser(x):
 
 
 def lambda_handler(event, context, interval):
-    connection = pymysql.connect(host='108.61.186.24',
-                                 user='bitmex3536',
+    connection = pymysql.connect(host=mysql_config.host,
+                                 user=mysql_config.user,
                                  #  password='',
-                                 password='BitMex*95645636',
-                                 db='aws_lambda_bitmex',
-                                 charset='utf8',
+                                 password=mysql_config.password,
+                                 db=mysql_config.db,
+                                 charset=mysql_config.charset,
                                  cursorclass=pymysql.cursors.DictCursor)
-    # connection = pymysql.connect(host='127.0.0.1',
-    #                              user='root',
-    #                              password='',
-    #                              db='aws_lambda_bitmex',
-    #                              charset='utf8',
-    #                              cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with connection.cursor() as cursor:

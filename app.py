@@ -7,6 +7,8 @@ import pandas as pd
 import pymysql.cursors
 import pymysql.cursors
 from flask import Flask, abort, request
+
+import mysql_config
 from bybit import bybit_api
 
 app = Flask(__name__)
@@ -18,19 +20,13 @@ def date_parser(x):
 
 @app.route('/get_custom_bitmex/<interval>')
 def get_custom_bitmex(interval):
-    connection = pymysql.connect(host='108.61.186.24',
-                                 user='bitmex3536',
+    connection = pymysql.connect(host=mysql_config.host,
+                                 user=mysql_config.user,
                                  #  password='',
-                                 password='BitMex*95645636',
-                                 db='aws_lambda_bitmex',
-                                 charset='utf8',
+                                 password=mysql_config.password,
+                                 db=mysql_config.db,
+                                 charset=mysql_config.charset,
                                  cursorclass=pymysql.cursors.DictCursor)
-    # connection = pymysql.connect(host='127.0.0.1',
-    #                              user='root',
-    #                              password='',
-    #                              db='aws_lambda_bitmex',
-    #                              charset='utf8',
-    #                              cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with connection.cursor() as cursor:
@@ -147,19 +143,13 @@ def get_custom_bitmex(interval):
 
 @app.route('/id0/<interval>')
 def id0(interval):
-    connection = pymysql.connect(host='108.61.186.24',
-                                 user='bitmex3536',
+    connection = pymysql.connect(host=mysql_config.host,
+                                 user=mysql_config.user,
                                  #  password='',
-                                 password='BitMex*95645636',
-                                 db='aws_lambda_bitmex',
-                                 charset='utf8',
+                                 password=mysql_config.password,
+                                 db=mysql_config.db,
+                                 charset=mysql_config.charset,
                                  cursorclass=pymysql.cursors.DictCursor)
-    # connection = pymysql.connect(host='127.0.0.1',
-    #                              user='root',
-    #                              password='',
-    #                              db='aws_lambda_bitmex',
-    #                              charset='utf8',
-    #                              cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with connection.cursor() as cursor:
@@ -248,19 +238,13 @@ def id0_collection(interval):
     params = request.args
     mode = params.get('mode')
     try:
-        connection = pymysql.connect(host='108.61.186.24',
-                                     user='bitmex3536',
+        connection = pymysql.connect(host=mysql_config.host,
+                                     user=mysql_config.user,
                                      #  password='',
-                                     password='BitMex*95645636',
-                                     db='aws_lambda_bitmex',
-                                     charset='utf8',
+                                     password=mysql_config.password,
+                                     db=mysql_config.db,
+                                     charset=mysql_config.charset,
                                      cursorclass=pymysql.cursors.DictCursor)
-        # connection = pymysql.connect(host='127.0.0.1',
-        #                              user='root',
-        #                              password='',
-        #                              db='aws_lambda_bitmex',
-        #                              charset='utf8',
-        #                              cursorclass=pymysql.cursors.DictCursor)
 
         with connection.cursor() as cursor:
             if mode == 'all':
@@ -333,12 +317,12 @@ def id0_collection(interval):
 @app.route('/bs_with_bybit/<interval>')
 def bs_with_bybit():
     try:
-        connection = pymysql.connect(host='108.61.186.24',
-                                     user='bitmex3536',
+        connection = pymysql.connect(host=mysql_config.host,
+                                     user=mysql_config.user,
                                      #  password='',
-                                     password='BitMex*95645636',
-                                     db='aws_lambda_bitmex',
-                                     charset='utf8',
+                                     password=mysql_config.password,
+                                     db=mysql_config.db,
+                                     charset=mysql_config.charset,
                                      cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
             sql = "SELECT * FROM last_order_id O ORDER BY O.timestamp DESC LIMIT 0, 1;"

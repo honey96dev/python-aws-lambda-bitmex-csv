@@ -1,0 +1,5 @@
+host = '108.61.186.24'
+user = 'bitmex3536'
+password = 'BitMex*95645636'
+db = 'aws_lambda_bitmex'
+charset = 'utf8'
