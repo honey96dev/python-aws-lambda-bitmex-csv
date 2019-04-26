@@ -44,10 +44,9 @@ def save_id0_to_db(interval):
             if len(rows) == 0:
                 sql = "INSERT INTO `id0_{}`(`timestamp`, `open`, `high`, `low`, `close`, `volume`, `num_3`, `num_3i`, `num_6`, `num_6i`, `num_9`, `num_9i`, `num_100`, `num_100i`) " + \
                       "VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');"
-                sql = sql.format(interval, row['timestamp'], row['open'], row['high'], row['low'], row['close'], row['volume'],
-                                 row['num_3']
-                                 , row['num_3i'], row['num_6'], row['num_6i'], row['num_9'], row['num_9i'],
-                                 row['num_100'], row['num_100i'])
+                sql = sql.format(interval, row['timestamp'], row['open'], row['high'], row['low'], row['close'],
+                                 row['volume'], row['num_3'], row['num_3i'], row['num_6'], row['num_6i'],
+                                 row['num_9'], row['num_9i'], row['num_100'], row['num_100i'])
                 print(sql)
                 cursor.execute(sql, None)
                 connection.commit()
@@ -74,11 +73,7 @@ def update_id0_table(sc):
     return result
 
 
-def thread_func_4_id0():
+if __name__ == '__main__':
     s.enter(0, 1, update_id0_table, (s,))
     s.run()
 
-
-if __name__ == '__main__':
-    thread_4_flask = Thread(target=thread_func_4_id0)
-    thread_4_flask.start()
