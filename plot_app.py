@@ -2,7 +2,6 @@ import json
 
 import matplotlib.pyplot as plt
 import requests
-import pandas as pd
 
 
 def draw_plot(interval):
