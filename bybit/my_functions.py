@@ -57,7 +57,7 @@ def generate_hmac_sha256_base64(secret, message):
 def generate_params_string(params):
     param_string = 'api_key={}'.format(global_constant.api_key)
     for key, value in params.items():
-        if (value is not None):
+        if value is not None:
             param_string = '{}&{}={}'.format(param_string, key, value)
 
     return param_string
